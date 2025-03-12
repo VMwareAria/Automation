@@ -1,0 +1,63 @@
+formatVersion: 1
+name: Git Ubuntu
+version: 5.0.0
+inputs:
+  vmName:
+    type: string
+    title: VM Name
+    default: git_ubuntu
+  vmCount:
+    type: integer
+    title: How many VMs?
+    description: Select between 1 and 6 VMs to deploy at once.
+    default: 1
+    minimum: 1
+    maximum: 6
+  vmSize:
+    type: string
+    title: VM Size
+    description: Select the size of your virtual machine based on workload needs.
+    enum:
+      - small
+      - medium
+      - large
+    default: small
+  installTelegraf:
+    type: boolean
+    title: Telegraf Agent?
+    description: Option to install Telegraf for Aria Operations Monitoring (Not Installed Here)
+    default: false
+  installLogInsight:
+    type: boolean
+    title: LogInsight?
+    description: Option to install LogInsight Agent for Aria Operations for Logs (Not Installed Here)
+    default: false
+  department:
+    type: string
+    title: Select your Department
+    enum:
+      - Engineering
+      - Operations
+      - Finance
+      - HR
+      - Sales
+      - Marketing
+    default: IT
+resources:
+  UbuntuVM:
+    type: Cloud.vSphere.Machine
+    allocatePerInstance: true
+    properties:
+      count: ${input.vmCount}
+      name: ${input.vmName}-${env.requestedBy}-${self.countIndex}
+      image: linux-ubuntu-server-20.04-cloud
+      flavor: ${input.vmSize}
+      tags:
+        - key: deployedBy
+          value: ${env.requestedBy}
+        - key: deployedDate
+          value: ${env.requestedAt}
+        - key: company
+          value: RockWool International
+        - key: department
+          value: ${input.department}
