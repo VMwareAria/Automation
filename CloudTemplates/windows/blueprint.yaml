@@ -1,0 +1,74 @@
+formatVersion: 1
+name: Git Windows 
+version: 5.0.0
+inputs:
+  vmName:
+    type: string
+    title: VM Name
+    default: git-win
+  vmCount:
+    type: integer
+    title: How many VMs?
+    description: Select between 1 and 6 VMs to deploy at once.
+    default: 1
+    minimum: 1
+    maximum: 6
+  vmSize:
+    type: string
+    title: VM Size
+    description: Select the size of your virtual machine based on workload needs.
+    enum:
+      - small
+      - medium
+      - large
+    default: small
+  windowsVersion:
+    type: string
+    title: Windows Version
+    description: Choose the Windows Server version.
+    enum:
+      - windows-2019
+      - windows-2022
+    default: windows-2022
+  installTelegraf:
+    type: boolean
+    title: Telegraf Agent?
+    default: false
+  installLogInsight:
+    type: boolean
+    title: LogInsight?
+    default: false
+  department:
+    type: string
+    title: Department
+    enum:
+      - Engineering
+      - Operations
+      - Finance
+      - HR
+      - Sales
+    default: Operations
+resources:
+  WindowsVM:
+    type: Cloud.vSphere.Machine
+    allocatePerInstance: true
+    properties:
+      count: ${input.vmCount}
+      name: ${input.vmName}-${self.countIndex}
+      image: ${input.windowsVersion}
+      flavor: ${input.vmSize}
+      remoteAccess:
+        authentication: usernamePassword
+        username: Administrator
+        password: VMware1!
+      tags:
+        - key: deployedBy
+          value: ${env.requestedBy}
+        - key: deployedDate
+          value: ${env.requestedAt}
+        - key: company
+          value: RockWool International
+        - key: department
+          value: ${input.department}
+        - key: approval
+          value: '${input.vmSize == "small" ? "false" : "true"}'
